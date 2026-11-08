@@ -1,18 +1,36 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
+import { QueryClient, QueryClientProvider, focusManager } from '@tanstack/react-query';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { AppState, useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+import { SesionProvider } from '@/contexto/sesion';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function TabLayout() {
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { staleTime: 60_000, retry: 2 } },
+});
+
+// En React Native no hay «foco de ventana»: se lo damos nosotros.
+AppState.addEventListener('change', (estado) =>
+  focusManager.setFocused(estado === 'active'),
+);
+
+export default function RootLayout() {
   const colorScheme = useColorScheme();
+
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <SesionProvider>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <AnimatedSplashOverlay />
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="lugar/[id]" options={{ title: 'Lugar' }} />
+          </Stack>
+        </ThemeProvider>
+      </SesionProvider>
+    </QueryClientProvider>
   );
 }
