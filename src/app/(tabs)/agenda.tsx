@@ -53,7 +53,14 @@ export default function Agenda() {
           <ThemedText style={styles.tituloDia}>{section.title}</ThemedText>
         </ThemedView>
       )}
-      refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
+            refreshControl={
+        <RefreshControl
+          refreshing={isRefetching}
+          onRefresh={() => {
+            refetch();
+          }}
+        />
+      }
       contentContainerStyle={styles.lista}
     />
   );
