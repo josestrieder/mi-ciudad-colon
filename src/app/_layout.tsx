@@ -28,6 +28,7 @@ export default function RootLayout() {
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="lugar/[id]" options={{ title: 'Lugar' }} />
+            <Stack.Screen name="favoritos" options={{ title: 'Mis favoritos' }} />
           </Stack>
         </ThemeProvider>
       </SesionProvider>

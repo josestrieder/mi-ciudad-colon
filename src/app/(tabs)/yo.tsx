@@ -6,6 +6,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useSesion } from '@/contexto/sesion';
 import { biometriaDisponible } from '@/servicios/biometria';
+import { router } from 'expo-router';
 
 export default function Yo() {
   const { estado, usaBiometria, cerrarSesion, desbloquear, activarBiometria, desactivarBiometria } =
@@ -80,6 +81,13 @@ export default function Yo() {
           Este teléfono no tiene huella o rostro registrados. Vas a entrar con tu contraseña.
         </ThemedText>
       ) : null}
+           
+       <Pressable
+        accessibilityRole="button"
+        onPress={() => router.push('/favoritos')}
+        style={styles.boton}>
+        <ThemedText style={styles.textoBoton}>Mis favoritos</ThemedText>
+      </Pressable>
 
       <Pressable
         accessibilityRole="button"

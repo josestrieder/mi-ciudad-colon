@@ -1,6 +1,7 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
+import { BotonFavorito } from '@/components/boton-favorito';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useLugar } from '@/hooks/use-lugar';
@@ -35,7 +36,12 @@ export default function DetalleLugar() {
   return (
     <ScrollView contentContainerStyle={styles.contenido}>
       <Stack.Screen options={{ title: lugar.nombre }} />
-      <ThemedText type="subtitle">{lugar.nombre}</ThemedText>
+      <View style={styles.encabezado}>
+        <ThemedText type="subtitle" style={styles.titulo}>
+          {lugar.nombre}
+        </ThemedText>
+        <BotonFavorito lugarId={lugar.id} />
+      </View>
       <ThemedText themeColor="textSecondary">{lugar.direccion}</ThemedText>
       <ThemedText>{lugar.descripcion}</ThemedText>
       <ThemedText type="small">{horarioDeHoy(lugar.horarios)}</ThemedText>
@@ -51,6 +57,8 @@ const styles = StyleSheet.create({
   centro: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 12 },
   texto: { textAlign: 'center' },
   contenido: { padding: 16, gap: 12 },
+  encabezado: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
+  titulo: { flex: 1 },
   boton: {
     backgroundColor: '#208AEF',
     paddingHorizontal: 24,
