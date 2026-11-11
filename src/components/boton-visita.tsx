@@ -1,14 +1,79 @@
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { useSesion } from '@/contexto/sesion';
-import { useRegistrarVisita } from '@/hooks/use-visitas';
+import { useEliminarVisita, useRegistrarVisita, useVisitas } from '@/hooks/use-visitas';
+import { ahoraEnColon, claveDia } from '@/utils/fechas';
+import { borrarFoto } from '@/utils/fotos';
 import { confirmacionHaptica } from '@/utils/haptica';
 
 export function BotonVisita({ lugarId }: { lugarId: string }) {
   const { estado } = useSesion();
+  const { data: visitas } = useVisitas();
   const registrar = useRegistrarVisita();
+  const eliminar = useEliminarVisita();
+
+  // Una visita por lugar y por día: si ya hay una de hoy, se edita o se quita.
+  const hoy = claveDia(ahoraEnColon());
+  const visitaDeHoy = visitas?.find((v) => v.lugarId === lugarId && claveDia(v.fechaHora) === hoy);
+
+  if (visitaDeHoy) {
+    const tieneFotoONota = Boolean(visitaDeHoy.fotoUri || visitaDeHoy.nota);
+
+    function confirmarQuitar() {
+      if (!visitaDeHoy) return;
+      Alert.alert(
+        '¿Quitar esta visita?',
+        tieneFotoONota
+          ? 'Se van a borrar también la foto y la nota.'
+          : 'Podés volver a marcarla cuando quieras.',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Quitar',
+            style: 'destructive',
+            onPress: () =>
+              eliminar.mutate(visitaDeHoy.id, {
+                onSuccess: () => {
+                  if (visitaDeHoy.fotoUri) borrarFoto(visitaDeHoy.fotoUri);
+                },
+              }),
+          },
+        ],
+      );
+    }
+
+    return (
+      <View style={styles.contenedor}>
+        <ThemedText type="small" themeColor="textSecondary">
+          Ya registraste este lugar hoy.
+        </ThemedText>
+        <View style={styles.fila}>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.push(`/visita/${visitaDeHoy.id}`)}
+            style={styles.boton}>
+            <ThemedText style={styles.textoBoton}>
+              {tieneFotoONota ? 'Editar visita' : 'Agregar foto y nota'}
+            </ThemedText>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            onPress={confirmarQuitar}
+            disabled={eliminar.isPending}
+            style={[styles.boton, styles.botonSecundario, eliminar.isPending && styles.inactivo]}>
+            <ThemedText style={styles.textoSecundario}>Quitar visita</ThemedText>
+          </Pressable>
+        </View>
+        {eliminar.isError ? (
+          <ThemedText type="small" style={styles.error}>
+            {eliminar.error.message}
+          </ThemedText>
+        ) : null}
+      </View>
+    );
+  }
 
   function alTocar() {
     if (estado.fase !== 'con-sesion') {
@@ -27,11 +92,6 @@ export function BotonVisita({ lugarId }: { lugarId: string }) {
         style={[styles.boton, registrar.isPending && styles.inactivo]}>
         <ThemedText style={styles.textoBoton}>Marcar como visitado</ThemedText>
       </Pressable>
-      {registrar.isSuccess ? (
-        <ThemedText type="small" themeColor="textSecondary">
-          Visita guardada en Mi recorrido.
-        </ThemedText>
-      ) : null}
       {registrar.isError ? (
         <ThemedText type="small" style={styles.error}>
           {registrar.error.message}
@@ -43,6 +103,7 @@ export function BotonVisita({ lugarId }: { lugarId: string }) {
 
 const styles = StyleSheet.create({
   contenedor: { gap: 8, alignItems: 'flex-start' },
+  fila: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   boton: {
     backgroundColor: '#208AEF',
     paddingHorizontal: 24,
@@ -50,7 +111,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
   },
+  botonSecundario: { backgroundColor: 'transparent', borderWidth: 2, borderColor: '#208AEF' },
   inactivo: { opacity: 0.6 },
   textoBoton: { color: '#ffffff', fontWeight: '700' },
+  textoSecundario: { color: '#208AEF', fontWeight: '700' },
   error: { color: '#B91C1C', fontWeight: '700' },
 });
