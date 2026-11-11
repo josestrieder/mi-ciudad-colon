@@ -6,6 +6,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useLugar } from '@/hooks/use-lugar';
 import { horarioDeHoy } from '@/utils/horarios';
+import { BotonVisita } from '@/components/boton-visita';
 
 export default function DetalleLugar() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -49,6 +50,7 @@ export default function DetalleLugar() {
       <ThemedText type="small">
         {lugar.accesible ? 'Accesible' : 'Accesibilidad no informada'}
       </ThemedText>
+      <BotonVisita lugarId={lugar.id} />
     </ScrollView>
   );
 }

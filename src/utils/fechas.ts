@@ -33,3 +33,9 @@ export function agruparPorDia(eventos: Evento[]): SeccionDia[] {
   }
   return secciones;
 }
+
+/** Ahora, como texto ISO con el huso de Colón (-03:00), igual que el resto de las fechas de la app. */
+export function ahoraEnColon(): string {
+  const colon = new Date(Date.now() - 3 * 60 * 60 * 1000);
+  return colon.toISOString().replace('Z', '-03:00');
+}

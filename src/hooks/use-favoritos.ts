@@ -1,13 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { useSesion } from '@/contexto/sesion';
+import { useUsuarioId } from '@/hooks/use-usuario-id';
 import { agregarFavorito, listarFavoritos, quitarFavorito } from '@/servicios/favoritos';
 import type { Favorito } from '@/tipos';
-
-function useUsuarioId(): string | null {
-  const { estado } = useSesion();
-  return estado.fase === 'con-sesion' ? estado.usuario.id : null;
-}
 
 export function useFavoritos() {
   const usuarioId = useUsuarioId();
