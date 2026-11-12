@@ -1,21 +1,50 @@
 import Ionicons from '@react-native-vector-icons/ionicons';
-import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
+import { setAudioModeAsync, useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import type { Audioguia } from '@/tipos';
+import { archivoDeAudioguia, borrarAudioguia, descargarAudioguia } from '@/utils/audioguias';
 import { formatearTiempo } from '@/utils/tiempo';
 
 const SALTO_SEGUNDOS = 15;
 const ESPERA_MAXIMA_MS = 12_000;
+// Se prende solo al compilar el APK (ver eas.json). En Expo Go no existen los servicios de fondo.
+const SEGUNDO_PLANO = process.env.EXPO_PUBLIC_SEGUNDO_PLANO === '1';
 
-export function ReproductorAudioguia({ audioguia }: { audioguia: Audioguia }) {
-  const player = useAudioPlayer(audioguia.url);
+type Props = { audioguia: Audioguia; lugarId: string; titulo: string };
+type Descarga = 'no' | 'bajando' | 'lista' | 'error';
+
+export function ReproductorAudioguia({ audioguia, lugarId, titulo }: Props) {
+  // Si ya la bajamos, suena desde el teléfono; si no (o si el sistema vació la caché), desde internet.
+  const [fuenteInicial] = useState(() => {
+    const archivo = archivoDeAudioguia(lugarId, audioguia);
+    return archivo.exists ? archivo.uri : audioguia.url;
+  });
+  const player = useAudioPlayer(fuenteInicial);
   // El reproductor no es estado de React: hay que escuchar su estado.
   const estado = useAudioPlayerStatus(player);
+
   const [tardando, setTardando] = useState(false);
+  const [descarga, setDescarga] = useState<Descarga>(() =>
+    archivoDeAudioguia(lugarId, audioguia).exists ? 'lista' : 'no',
+  );
+  const [avance, setAvance] = useState(0);
+
+  // Preparado para la pantalla apagada: solo se activa del todo en el APK.
+  useEffect(() => {
+    try {
+      setAudioModeAsync({
+        playsInSilentMode: true,
+        shouldPlayInBackground: SEGUNDO_PLANO,
+        interruptionMode: 'doNotMix',
+      });
+    } catch {
+      // Si no está disponible, seguimos sin él.
+    }
+  }, []);
 
   // Si el audio no carga (por ejemplo, sin señal), no dejamos un spinner eterno.
   useEffect(() => {
@@ -37,8 +66,19 @@ export function ReproductorAudioguia({ audioguia }: { audioguia: Audioguia }) {
   const progreso = total > 0 ? actual / total : 0;
 
   function alternar() {
-    if (estado.playing) player.pause();
-    else player.play();
+    if (estado.playing) {
+      player.pause();
+      return;
+    }
+    if (SEGUNDO_PLANO) {
+      try {
+        // En Android, sin los controles de la pantalla de bloqueo el sistema corta el audio a los ~3 minutos.
+        player.setActiveForLockScreen(true, { title: titulo, artist: 'Mi Ciudad Colón' });
+      } catch {
+        // Si no está disponible, sigue sonando con la app abierta.
+      }
+    }
+    player.play();
   }
 
   function saltar(delta: number) {
@@ -47,6 +87,26 @@ export function ReproductorAudioguia({ audioguia }: { audioguia: Audioguia }) {
 
   function reintentar() {
     setTardando(false);
+    player.replace(fuenteInicial);
+  }
+
+  async function descargar() {
+    setDescarga('bajando');
+    setAvance(0);
+    try {
+      const uri = await descargarAudioguia(lugarId, audioguia, setAvance);
+      player.pause();
+      player.replace(uri); // desde ahora suena desde el teléfono
+      setDescarga('lista');
+    } catch {
+      setDescarga('error');
+    }
+  }
+
+  function borrarDescarga() {
+    borrarAudioguia(lugarId, audioguia);
+    setDescarga('no');
+    player.pause();
     player.replace(audioguia.url);
   }
 
@@ -114,6 +174,40 @@ export function ReproductorAudioguia({ audioguia }: { audioguia: Audioguia }) {
           Faltan {formatearTiempo(total - actual)}
         </ThemedText>
       </View>
+
+      {descarga === 'no' || descarga === 'error' ? (
+        <View style={styles.descarga}>
+          {descarga === 'error' ? (
+            <ThemedText type="small" style={styles.error}>
+              No se pudo descargar. Probá de nuevo.
+            </ThemedText>
+          ) : null}
+          <Pressable accessibilityRole="button" onPress={descargar} style={styles.botonDescarga}>
+            <Ionicons name="download-outline" size={20} color="#208AEF" />
+            <ThemedText style={styles.textoDescarga}>Descargar para escuchar sin señal</ThemedText>
+          </Pressable>
+        </View>
+      ) : null}
+
+      {descarga === 'bajando' ? (
+        <View style={styles.descarga}>
+          <ThemedText type="small">Descargando… {Math.round(avance * 100)} %</ThemedText>
+          <View style={styles.barra}>
+            <View style={[styles.relleno, { width: `${avance * 100}%` }]} />
+          </View>
+        </View>
+      ) : null}
+
+      {descarga === 'lista' ? (
+        <View style={styles.descarga}>
+          <ThemedText type="small" themeColor="textSecondary">
+            Guardada en el teléfono: suena sin señal.
+          </ThemedText>
+          <Pressable accessibilityRole="button" onPress={borrarDescarga}>
+            <ThemedText type="linkPrimary">Borrar la descarga</ThemedText>
+          </Pressable>
+        </View>
+      ) : null}
     </ThemedView>
   );
 }
@@ -135,6 +229,19 @@ const styles = StyleSheet.create({
   barra: { height: 8, borderRadius: 4, backgroundColor: '#D1D5DB', overflow: 'hidden' },
   relleno: { height: 8, backgroundColor: '#208AEF' },
   tiempos: { flexDirection: 'row', justifyContent: 'space-between' },
+  descarga: { gap: 8, alignItems: 'flex-start' },
+  botonDescarga: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    minHeight: 48,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#208AEF',
+  },
+  textoDescarga: { color: '#208AEF', fontWeight: '700' },
+  error: { color: '#B91C1C', fontWeight: '700' },
   reintentar: {
     backgroundColor: '#208AEF',
     paddingHorizontal: 24,

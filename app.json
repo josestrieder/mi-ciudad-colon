@@ -36,7 +36,9 @@
       "@react-native-vector-icons/ionicons",
       "expo-secure-store",
       "expo-sqlite",
-      "expo-audio"
+      "expo-audio",
+      "expo-status-bar",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

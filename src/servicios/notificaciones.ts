@@ -13,16 +13,27 @@ Notifications.setNotificationHandler({
   }),
 });
 
+let canalCreado = false;
+
+/** El canal propio solo se usa si el sistema dejó crearlo. */
+export function canalDeEventos(): string | undefined {
+  return canalCreado ? CANAL_EVENTOS : undefined;
+}
+
 export type PermisoAvisos = 'concedido' | 'denegado' | 'bloqueado';
 
 export async function pedirPermisoAvisos(): Promise<PermisoAvisos> {
   if (Platform.OS === 'android') {
-    // En Android el canal va ANTES del permiso.
-    await Notifications.setNotificationChannelAsync(CANAL_EVENTOS, {
-      name: 'Recordatorios de eventos',
-      importance: Notifications.AndroidImportance.HIGH,
-      vibrationPattern: [0, 250, 250, 250],
-    });
+    try {
+      // En Android el canal va ANTES del permiso. Con lo mínimo: nombre e importancia.
+      await Notifications.setNotificationChannelAsync(CANAL_EVENTOS, {
+        name: 'Recordatorios de eventos',
+        importance: Notifications.AndroidImportance.HIGH,
+      });
+      canalCreado = true;
+    } catch {
+      // Si no se pudo crear, seguimos con el canal que Expo crea por defecto.
+    }
   }
 
   const actual = await Notifications.getPermissionsAsync();

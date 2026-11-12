@@ -1,6 +1,7 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
+import { BotonComoLlegar } from '@/components/boton-como-llegar';
 import { BotonFavorito } from '@/components/boton-favorito';
 import { BotonVisita } from '@/components/boton-visita';
 import { ReproductorAudioguia } from '@/components/reproductor-audioguia';
@@ -46,12 +47,19 @@ export default function DetalleLugar() {
       </View>
       <ThemedText themeColor="textSecondary">{lugar.direccion}</ThemedText>
       <ThemedText>{lugar.descripcion}</ThemedText>
-      {lugar.audioguia ? <ReproductorAudioguia audioguia={lugar.audioguia} /> : null}
+      {lugar.audioguia ? (
+        <ReproductorAudioguia audioguia={lugar.audioguia} lugarId={lugar.id} titulo={lugar.nombre} />
+      ) : null}
       <ThemedText type="small">{horarioDeHoy(lugar.horarios)}</ThemedText>
       {lugar.telefono ? <ThemedText type="small">Tel. {lugar.telefono}</ThemedText> : null}
       <ThemedText type="small">
         {lugar.accesible ? 'Accesible' : 'Accesibilidad no informada'}
       </ThemedText>
+      <BotonComoLlegar
+        latitud={lugar.coordenadas.latitud}
+        longitud={lugar.coordenadas.longitud}
+        nombre={lugar.nombre}
+      />
       <BotonVisita lugarId={lugar.id} />
     </ScrollView>
   );

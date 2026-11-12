@@ -2,7 +2,7 @@ import * as Notifications from 'expo-notifications';
 
 import type { Evento } from '@/tipos';
 import { horaDe } from '@/utils/fechas';
-import { CANAL_EVENTOS } from './notificaciones';
+import { canalDeEventos } from './notificaciones';
 
 export const MINUTOS_ANTES = 60; // para probar se puede subir (ver «Cómo probarlo»)
 
@@ -64,7 +64,7 @@ export async function programarRecordatorio(
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DATE,
       date: cuando,
-      channelId: CANAL_EVENTOS,
+      channelId: canalDeEventos(),
     },
   });
   return { tipo: 'programado', inmediato };
