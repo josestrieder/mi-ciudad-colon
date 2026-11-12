@@ -63,7 +63,7 @@ export const lugares: Lugar[] = [
     sitioWeb: null,
     precioEntrada: 0,
     audioguia: {
-      url: "https://api.colon.tur.ar/audio/casa-cultura-es.m4a",
+      url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
       duracionSegundos: 210,
       idioma: "es",
     },
@@ -90,7 +90,7 @@ export const lugares: Lugar[] = [
     sitioWeb: null,
     precioEntrada: 1500,
     audioguia: {
-      url: "https://api.colon.tur.ar/audio/molino-es.m4a",
+      url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
       duracionSegundos: 252,
       idioma: "es",
     },

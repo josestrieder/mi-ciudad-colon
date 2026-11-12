@@ -2,11 +2,12 @@ import { Stack, useLocalSearchParams } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { BotonFavorito } from '@/components/boton-favorito';
+import { BotonVisita } from '@/components/boton-visita';
+import { ReproductorAudioguia } from '@/components/reproductor-audioguia';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useLugar } from '@/hooks/use-lugar';
 import { horarioDeHoy } from '@/utils/horarios';
-import { BotonVisita } from '@/components/boton-visita';
 
 export default function DetalleLugar() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -45,6 +46,7 @@ export default function DetalleLugar() {
       </View>
       <ThemedText themeColor="textSecondary">{lugar.direccion}</ThemedText>
       <ThemedText>{lugar.descripcion}</ThemedText>
+      {lugar.audioguia ? <ReproductorAudioguia audioguia={lugar.audioguia} /> : null}
       <ThemedText type="small">{horarioDeHoy(lugar.horarios)}</ThemedText>
       {lugar.telefono ? <ThemedText type="small">Tel. {lugar.telefono}</ThemedText> : null}
       <ThemedText type="small">
