@@ -1,6 +1,7 @@
 import Ionicons from '@react-native-vector-icons/ionicons';
 import { Tabs } from 'expo-router';
 import { View } from 'react-native';
+import { AvisoDatosGuardados } from '@/components/aviso-datos-guardados';
 
 import { AvisoDeRed } from '@/components/aviso-de-red';
 
@@ -11,6 +12,7 @@ export default function TabsLayout() {
       screenLayout={({ children }) => (
         <View style={{ flex: 1 }}>
           <AvisoDeRed />
+         <AvisoDatosGuardados />
           {children}
         </View>
       )}>

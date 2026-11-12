@@ -1,10 +1,12 @@
 import { QueryClient, QueryClientProvider, focusManager } from '@tanstack/react-query';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { SQLiteProvider } from 'expo-sqlite';
 import { AppState, useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { SesionProvider } from '@/contexto/sesion';
+import { migrar, NOMBRE_BD } from '@/servicios/base-de-datos';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -22,17 +24,20 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SesionProvider>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <AnimatedSplashOverlay />
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="escanear" options={{ title: 'Escanear QR' }} />
-            <Stack.Screen name="lugar/[id]" options={{ title: 'Lugar' }} />
-            <Stack.Screen name="favoritos" options={{ title: 'Mis favoritos' }} />
-          </Stack>
-        </ThemeProvider>
-      </SesionProvider>
+      <SQLiteProvider databaseName={NOMBRE_BD} onInit={migrar}>
+        <SesionProvider>
+          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <AnimatedSplashOverlay />
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="lugar/[id]" options={{ title: 'Lugar' }} />
+              <Stack.Screen name="favoritos" options={{ title: 'Mis favoritos' }} />
+              <Stack.Screen name="visita/[id]" options={{ title: 'Visita' }} />
+              <Stack.Screen name="escanear" options={{ title: 'Escanear QR' }} />
+            </Stack>
+          </ThemeProvider>
+        </SesionProvider>
+      </SQLiteProvider>
     </QueryClientProvider>
   );
 }
