@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Pressable, StyleSheet } from 'react-native';
 
@@ -5,7 +6,6 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import type { OrigenVisita, Visita } from '@/tipos';
 import { claveDia, horaDe, tituloDia } from '@/utils/fechas';
-import { Image } from 'expo-image';
 
 const TEXTO_ORIGEN: Record<OrigenVisita, string> = {
   qr: 'Registrada con QR',
@@ -29,7 +29,12 @@ export function TarjetaVisita({ visita, nombreLugar }: Props) {
           {nombreLugar}
         </ThemedText>
         <ThemedText type="small">{TEXTO_ORIGEN[visita.origen]}</ThemedText>
-                {visita.fotoUri ? (
+        {!visita.sincronizada ? (
+          <ThemedText type="small" style={styles.pendiente}>
+            Pendiente de subir
+          </ThemedText>
+        ) : null}
+        {visita.fotoUri ? (
           <Image
             source={{ uri: visita.fotoUri }}
             style={styles.foto}
@@ -47,9 +52,9 @@ export function TarjetaVisita({ visita, nombreLugar }: Props) {
   );
 }
 
-
 const styles = StyleSheet.create({
   tarjeta: { padding: 16, borderRadius: 12, gap: 4 },
   nombre: { fontSize: 18, fontWeight: '700', lineHeight: 24 },
   foto: { width: '100%', aspectRatio: 16 / 9, borderRadius: 8, marginTop: 4 },
+  pendiente: { color: '#B45309', fontWeight: '700' },
 });

@@ -4,7 +4,7 @@ export const NOMBRE_BD = 'mi-ciudad.db';
 
 /** Crea o actualiza las tablas. Corre una vez al abrir la base, antes de pintar nada. */
 export async function migrar(db: SQLiteDatabase) {
-  const VERSION = 1;
+  const VERSION = 2;
   const fila = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version');
   let actual = fila?.user_version ?? 0;
   if (actual >= VERSION) return;
@@ -24,7 +24,17 @@ export async function migrar(db: SQLiteDatabase) {
       );`);
     actual = 1;
   }
-  // if (actual === 1) { …la próxima migración va acá… }
+
+  if (actual === 1) {
+    await db.execAsync(`CREATE TABLE visitas_pendientes (
+        id TEXT PRIMARY KEY NOT NULL,
+        usuario_id TEXT NOT NULL,
+        lugar_id TEXT NOT NULL,
+        origen TEXT NOT NULL,
+        fecha_hora TEXT NOT NULL
+      );`);
+    actual = 2;
+  }
 
   await db.execAsync(`PRAGMA user_version = ${VERSION}`);
 }

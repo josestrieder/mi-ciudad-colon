@@ -9,7 +9,13 @@ import {
 } from '@/servicios/auth';
 import { biometriaDisponible, pedirBiometria } from '@/servicios/biometria';
 import { ErrorDeApi } from '@/servicios/cliente';
-import { guardarUsarBiometria, leerUsarBiometria } from '@/servicios/preferencias';
+import {
+  borrarPerfilLocal,
+  guardarPerfilLocal,
+  guardarUsarBiometria,
+  leerPerfilLocal,
+  leerUsarBiometria,
+} from '@/servicios/preferencias';
 import { borrarToken, guardarToken, leerToken } from '@/servicios/token';
 import type { Usuario } from '@/tipos';
 
@@ -32,18 +38,26 @@ type ValorSesion = {
 
 const SesionContext = createContext<ValorSesion | null>(null);
 
-/** Con un token guardado, pide el usuario al servidor. Si el token ya no sirve, lo borra. */
+/** Con un token guardado, pide el usuario al servidor. Sin conexión, usa el último perfil guardado. */
 async function cargarUsuario(token: string): Promise<Estado> {
   try {
     const usuario = await obtenerPerfil(token);
+    try {
+      await guardarPerfilLocal(usuario);
+    } catch {
+      // Si no se pudo guardar la copia, seguimos con lo que llegó.
+    }
     return { fase: 'con-sesion', usuario };
   } catch (error) {
-    // Sólo borramos el token si el servidor dijo que ya no sirve.
-    // Si falló por falta de conexión, lo conservamos para reintentar después.
     if (error instanceof ErrorDeApi && error.codigo === 'SESION_INVALIDA') {
+      // El servidor dijo que el token ya no sirve.
       await borrarToken();
+      await borrarPerfilLocal();
+      return { fase: 'sin-sesion' };
     }
-    return { fase: 'sin-sesion' };
+    // Sin conexión: seguimos con el último perfil que guardamos.
+    const guardado = await leerPerfilLocal();
+    return guardado ? { fase: 'con-sesion', usuario: guardado } : { fase: 'sin-sesion' };
   }
 }
 
@@ -83,12 +97,14 @@ export function SesionProvider({ children }: { children: ReactNode }) {
   async function ingresar(email: string, password: string) {
     const { usuario, token } = await ingresarEnServidor(email, password);
     await guardarToken(token);
+    await guardarPerfilLocal(usuario);
     setEstado({ fase: 'con-sesion', usuario });
   }
 
   async function registrar(datos: DatosRegistro) {
     const { usuario, token } = await registrarEnServidor(datos);
     await guardarToken(token);
+    await guardarPerfilLocal(usuario);
     setEstado({ fase: 'con-sesion', usuario });
   }
 
@@ -100,6 +116,7 @@ export function SesionProvider({ children }: { children: ReactNode }) {
       // Sin conexión: igual cerramos acá.
     } finally {
       await borrarToken();
+      await borrarPerfilLocal();
       await guardarUsarBiometria(false);
       setUsaBiometria(false);
       setEstado({ fase: 'sin-sesion' });

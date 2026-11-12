@@ -19,15 +19,18 @@ export function BotonVisita({ lugarId }: { lugarId: string }) {
   const visitaDeHoy = visitas?.find((v) => v.lugarId === lugarId && claveDia(v.fechaHora) === hoy);
 
   if (visitaDeHoy) {
+    const pendiente = !visitaDeHoy.sincronizada;
     const tieneFotoONota = Boolean(visitaDeHoy.fotoUri || visitaDeHoy.nota);
 
     function confirmarQuitar() {
       if (!visitaDeHoy) return;
       Alert.alert(
         '¿Quitar esta visita?',
-        tieneFotoONota
-          ? 'Se van a borrar también la foto y la nota.'
-          : 'Podés volver a marcarla cuando quieras.',
+        pendiente
+          ? 'Se borra del teléfono y no se va a subir.'
+          : tieneFotoONota
+            ? 'Se van a borrar también la foto y la nota.'
+            : 'Podés volver a marcarla cuando quieras.',
         [
           { text: 'Cancelar', style: 'cancel' },
           {
@@ -47,17 +50,21 @@ export function BotonVisita({ lugarId }: { lugarId: string }) {
     return (
       <View style={styles.contenedor}>
         <ThemedText type="small" themeColor="textSecondary">
-          Ya registraste este lugar hoy.
+          {pendiente
+            ? 'Visita guardada en el teléfono. Se sube cuando haya conexión.'
+            : 'Ya registraste este lugar hoy.'}
         </ThemedText>
         <View style={styles.fila}>
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => router.push(`/visita/${visitaDeHoy.id}`)}
-            style={styles.boton}>
-            <ThemedText style={styles.textoBoton}>
-              {tieneFotoONota ? 'Editar visita' : 'Agregar foto y nota'}
-            </ThemedText>
-          </Pressable>
+          {!pendiente ? (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => router.push(`/visita/${visitaDeHoy.id}`)}
+              style={styles.boton}>
+              <ThemedText style={styles.textoBoton}>
+                {tieneFotoONota ? 'Editar visita' : 'Agregar foto y nota'}
+              </ThemedText>
+            </Pressable>
+          ) : null}
           <Pressable
             accessibilityRole="button"
             onPress={confirmarQuitar}

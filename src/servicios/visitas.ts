@@ -15,13 +15,14 @@ export async function registrarVisita(
   usuarioId: string,
   lugarId: string,
   origen: OrigenVisita,
+  fechaHora: string = ahoraEnColon(),
 ): Promise<Visita> {
   await simularRed();
 
   // Una visita por lugar y por día.
-  const hoy = claveDia(ahoraEnColon());
+  const dia = claveDia(fechaHora);
   const yaRegistrada = visitas.some(
-    (v) => v.usuarioId === usuarioId && v.lugarId === lugarId && claveDia(v.fechaHora) === hoy,
+    (v) => v.usuarioId === usuarioId && v.lugarId === lugarId && claveDia(v.fechaHora) === dia,
   );
   if (yaRegistrada) {
     throw new ErrorDeApi("VISITA_DUPLICADA", "Ya registraste este lugar hoy.");
@@ -31,7 +32,7 @@ export async function registrarVisita(
     id: `vis-${Date.now()}`,
     usuarioId,
     lugarId,
-    fechaHora: ahoraEnColon(),
+    fechaHora,
     origen,
     fotoUri: null,
     nota: null,
@@ -40,6 +41,7 @@ export async function registrarVisita(
   visitas.push(nueva);
   return nueva;
 }
+
 
 export interface CambiosVisita {
   fotoUri?: string | null;
