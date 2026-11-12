@@ -5,17 +5,17 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "miapp",
+    "scheme": "miciudadcolon",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "bundleIdentifier": "ar.edu.uner.miciudadcolon"
     },
     "android": {
+      "package": "ar.edu.uner.miciudadcolon",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#0B3A5D",
+        "foregroundImage": "./assets/images/icon-frente.png",
+        "monochromeImage": "./assets/images/icon-mono.png"
       },
       "predictiveBackGestureEnabled": false
     },
@@ -28,15 +28,59 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 200,
+          "backgroundColor": "#FFFFFF",
+          "dark": {
+            "image": "./assets/images/splash-icon-dark.png",
+            "backgroundColor": "#0B3A5D"
+          }
         }
       ],
       "@react-native-vector-icons/ionicons",
       "expo-secure-store",
       "expo-sqlite",
-      "expo-audio",
+      [
+        "expo-audio",
+        {
+          "enableBackgroundPlayback": true
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notificacion.png",
+          "color": "#0B3A5D"
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Mi Ciudad Colón usa la cámara para leer el código QR de los carteles.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Mi Ciudad Colón accede a tus fotos para que elijas la imagen de tu visita.",
+          "cameraPermission": "Mi Ciudad Colón usa la cámara para que saques una foto en el lugar.",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Mi Ciudad Colón usa tu ubicación para mostrarte qué lugares tenés cerca."
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Mi Ciudad Colón usa Face ID para que vuelvas a entrar a tu cuenta sin escribir la contraseña."
+        }
+      ],
       "expo-status-bar",
       "expo-web-browser"
     ],
