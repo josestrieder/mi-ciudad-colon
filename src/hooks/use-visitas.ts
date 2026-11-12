@@ -8,6 +8,7 @@ import {
   registrarVisita,
   type CambiosVisita,
 } from '@/servicios/visitas';
+import type { OrigenVisita } from '@/tipos';
 
 export function useVisitas() {
   const usuarioId = useUsuarioId();
@@ -23,9 +24,9 @@ export function useRegistrarVisita() {
   const usuarioId = useUsuarioId();
 
   return useMutation({
-    mutationFn: async (lugarId: string) => {
+    mutationFn: async ({ lugarId, origen }: { lugarId: string; origen: OrigenVisita }) => {
       if (!usuarioId) throw new Error('Necesitás una cuenta para guardar tu recorrido.');
-      return registrarVisita(usuarioId, lugarId, 'manual');
+      return registrarVisita(usuarioId, lugarId, origen);
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['visitas', usuarioId] }),
   });

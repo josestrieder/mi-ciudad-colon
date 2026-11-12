@@ -27,6 +27,7 @@ export default function RootLayout() {
           <AnimatedSplashOverlay />
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="escanear" options={{ title: 'Escanear QR' }} />
             <Stack.Screen name="lugar/[id]" options={{ title: 'Lugar' }} />
             <Stack.Screen name="favoritos" options={{ title: 'Mis favoritos' }} />
           </Stack>

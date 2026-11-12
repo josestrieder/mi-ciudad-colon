@@ -8,6 +8,17 @@ import { useSesion } from '@/contexto/sesion';
 import { useLugares } from '@/hooks/use-lugares';
 import { useVisitas } from '@/hooks/use-visitas';
 
+function BotonEscanear() {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      onPress={() => router.push('/escanear')}
+      style={styles.boton}>
+      <ThemedText style={styles.textoBoton}>Escanear código QR</ThemedText>
+    </Pressable>
+  );
+}
+
 export default function Recorrido() {
   const { estado } = useSesion();
   const visitas = useVisitas();
@@ -60,8 +71,9 @@ export default function Recorrido() {
       <ThemedView style={styles.centro}>
         <ThemedText type="subtitle">Todavía no hay visitas</ThemedText>
         <ThemedText themeColor="textSecondary" style={styles.texto}>
-          Abrí un lugar y tocá «Marcar como visitado» para empezar tu recorrido.
+          Abrí un lugar y tocá «Marcar como visitado», o escaneá el código QR de un cartel.
         </ThemedText>
+        <BotonEscanear />
       </ThemedView>
     );
   }
@@ -72,6 +84,7 @@ export default function Recorrido() {
     <FlatList
       data={visitas.data}
       keyExtractor={(visita) => visita.id}
+      ListHeaderComponent={<BotonEscanear />}
       renderItem={({ item }) => (
         <TarjetaVisita visita={item} nombreLugar={nombres.get(item.lugarId) ?? 'Lugar'} />
       )}
@@ -90,6 +103,7 @@ const styles = StyleSheet.create({
     minHeight: 48,
     borderRadius: 12,
     justifyContent: 'center',
+    alignSelf: 'flex-start',
   },
   textoBoton: { color: '#ffffff', fontWeight: '700' },
 });

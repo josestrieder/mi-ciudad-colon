@@ -80,7 +80,7 @@ export function BotonVisita({ lugarId }: { lugarId: string }) {
       router.push('/yo'); // la cuenta es para guardar cosas
       return;
     }
-    registrar.mutate(lugarId, { onSuccess: () => confirmacionHaptica() });
+    registrar.mutate({ lugarId, origen: 'manual' }, { onSuccess: () => confirmacionHaptica() });
   }
 
   return (
