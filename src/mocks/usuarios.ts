@@ -34,6 +34,6 @@ export const visitas: Visita[] = [
     origen: "qr",
     fotoUri: "file:///.../visitas/vis-311.jpg",
     nota: "Hacía 38 grados pero valió la pena",
-    sincronizada: false,
+    sincronizada: true,
   },
 ];

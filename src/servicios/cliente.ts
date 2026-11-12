@@ -1,3 +1,5 @@
+import * as Network from "expo-network";
+
 import type { RespuestaLista } from "@/tipos";
 import { configuracionMock } from "./config";
 
@@ -14,10 +16,14 @@ export class ErrorDeApi extends Error {
 
 const esperar = (ms: number) => new Promise<void>((resolver) => setTimeout(resolver, ms));
 
-/** Simula el viaje por la red: demora y, según el modo, falla. */
+/**
+ * Simula el viaje por la red: demora y falla si el modo de prueba es "error"
+ * o si el teléfono realmente no tiene internet (modo avión, sin señal).
+ */
 export async function simularRed(): Promise<void> {
   await esperar(configuracionMock.demoraMs);
-  if (configuracionMock.modo === "error") {
+  const red = await Network.getNetworkStateAsync();
+  if (configuracionMock.modo === "error" || red.isInternetReachable === false) {
     throw new ErrorDeApi("SIN_CONEXION", "No hay conexión con el servidor.");
   }
 }

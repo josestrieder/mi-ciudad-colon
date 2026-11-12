@@ -11,6 +11,6 @@
 export type ModoMock = "normal" | "vacio" | "error";
 
 export const configuracionMock: { modo: ModoMock; demoraMs: number } = {
-  modo: "error",
+  modo: "normal",
   demoraMs: 600,
 };
