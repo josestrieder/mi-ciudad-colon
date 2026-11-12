@@ -1,9 +1,19 @@
 import Ionicons from '@react-native-vector-icons/ionicons';
 import { Tabs } from 'expo-router';
+import { View } from 'react-native';
+
+import { AvisoDeRed } from '@/components/aviso-de-red';
 
 export default function TabsLayout() {
   return (
-    <Tabs screenOptions={{ tabBarActiveTintColor: '#208AEF' }}>
+    <Tabs
+      screenOptions={{ tabBarActiveTintColor: '#208AEF' }}
+      screenLayout={({ children }) => (
+        <View style={{ flex: 1 }}>
+          <AvisoDeRed />
+          {children}
+        </View>
+      )}>
       <Tabs.Screen
         name="index"
         options={{
