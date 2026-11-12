@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { Pressable, StyleSheet } from 'react-native';
 
+import { BotonRecordatorio } from '@/components/boton-recordatorio';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import type { Evento } from '@/tipos';
@@ -42,6 +43,7 @@ export function TarjetaEvento({ evento }: { evento: Evento }) {
           Tocá para ver el lugar
         </ThemedText>
       ) : null}
+      <BotonRecordatorio evento={evento} />
     </ThemedView>
   );
 

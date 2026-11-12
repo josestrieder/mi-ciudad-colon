@@ -5,6 +5,7 @@ import { SQLiteProvider } from 'expo-sqlite';
 import { AppState, useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
+import { EscuchaNotificaciones } from '@/components/escucha-notificaciones';
 import { Sincronizador } from '@/components/sincronizador';
 import { SesionProvider } from '@/contexto/sesion';
 import { migrar, NOMBRE_BD } from '@/servicios/base-de-datos';
@@ -30,6 +31,7 @@ export default function RootLayout() {
           <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <AnimatedSplashOverlay />
             <Sincronizador />
+            <EscuchaNotificaciones />
             <Stack>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="lugar/[id]" options={{ title: 'Lugar' }} />
