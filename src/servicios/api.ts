@@ -13,7 +13,8 @@ type CuerpoError = { error?: { codigo?: string; mensaje?: string } };
 
 export const api = axios.create({
   baseURL: URL_API,
-  timeout: 10_000,
+  // La API gratuita de Render se duerme y tarda cerca de un minuto en despertar.
+  timeout: 60_000,
   headers: { 'Content-Type': 'application/json' },
 });
 
@@ -47,3 +48,8 @@ api.interceptors.response.use(
     return Promise.reject(error);
   },
 );
+
+// Calentamiento: al abrir la app se le pega a /salud para despertar la API mientras se ven las pantallas de carga.
+if (usarApiReal) {
+  void api.get('/salud').catch(() => undefined);
+}
