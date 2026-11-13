@@ -15,7 +15,7 @@
       },
       "env": {
         "EXPO_PUBLIC_SEGUNDO_PLANO": "1",
-        "EXPO_PUBLIC_MAPA": "0"
+        "EXPO_PUBLIC_MAPA": "1"
       }
     },
     "production": {
