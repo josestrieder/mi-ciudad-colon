@@ -4,6 +4,7 @@ import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { useSesion } from '@/contexto/sesion';
 import { useEliminarVisita, useRegistrarVisita, useVisitas } from '@/hooks/use-visitas';
+import { usarApiReal } from '@/servicios/api';
 import { ahoraEnColon, claveDia } from '@/utils/fechas';
 import { borrarFoto } from '@/utils/fotos';
 import { confirmacionHaptica } from '@/utils/haptica';
@@ -21,6 +22,8 @@ export function BotonVisita({ lugarId }: { lugarId: string }) {
   if (visitaDeHoy) {
     const pendiente = !visitaDeHoy.sincronizada;
     const tieneFotoONota = Boolean(visitaDeHoy.fotoUri || visitaDeHoy.nota);
+    // La API no permite borrar visitas: solo se pueden quitar las que todavía están en el teléfono.
+    const puedeQuitar = pendiente || !usarApiReal;
 
     function confirmarQuitar() {
       if (!visitaDeHoy) return;
@@ -65,13 +68,15 @@ export function BotonVisita({ lugarId }: { lugarId: string }) {
               </ThemedText>
             </Pressable>
           ) : null}
-          <Pressable
-            accessibilityRole="button"
-            onPress={confirmarQuitar}
-            disabled={eliminar.isPending}
-            style={[styles.boton, styles.botonSecundario, eliminar.isPending && styles.inactivo]}>
-            <ThemedText style={styles.textoSecundario}>Quitar visita</ThemedText>
-          </Pressable>
+          {puedeQuitar ? (
+            <Pressable
+              accessibilityRole="button"
+              onPress={confirmarQuitar}
+              disabled={eliminar.isPending}
+              style={[styles.boton, styles.botonSecundario, eliminar.isPending && styles.inactivo]}>
+              <ThemedText style={styles.textoSecundario}>Quitar visita</ThemedText>
+            </Pressable>
+          ) : null}
         </View>
         {eliminar.isError ? (
           <ThemedText type="small" style={styles.error}>

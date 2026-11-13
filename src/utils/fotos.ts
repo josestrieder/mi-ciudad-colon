@@ -10,8 +10,13 @@ export function guardarFoto(uriTemporal: string): string {
   return definitiva.uri;
 }
 
-/** Borra una foto guardada. No falla si el archivo ya no está. */
+/** Borra una foto guardada en el teléfono. Ignora las que ya están en el servidor y no falla si ya no está. */
 export function borrarFoto(uri: string): void {
-  const archivo = new File(uri);
-  if (archivo.exists) archivo.delete();
+  if (!uri.startsWith('file://')) return;
+  try {
+    const archivo = new File(uri);
+    if (archivo.exists) archivo.delete();
+  } catch {
+    // Si no se pudo borrar, no es motivo para fallar.
+  }
 }
